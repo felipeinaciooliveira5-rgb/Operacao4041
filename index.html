@@ -3,54 +3,97 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OPERACAO 4041 | OSINT DASHBOARD</title>
+<title>OPERACAO 4041 | OSINT DASHBOARD V2</title>
 <style>
-body{background:#050a05;color:#00ff41;font-family:monospace;padding:15px;margin:0}
-h1{border:2px solid #00ff41;padding:10px;text-align:center;box-shadow:0 0 15px #00ff41}
-.box{border:1px solid #00ff41;padding:15px;margin:15px 0;background:#001100}
-.big{font-size:28px;text-align:center}
-.tag{display:inline-block;border:1px solid #00ff41;padding:3px 8px;margin:3px}
+body{background:#050a05;color:#00ff41;font-family:monospace;padding:12px;margin:0}
+h1{border:2px solid #00ff41;padding:12px;text-align:center;box-shadow:0 0 20px #00ff41; margin-bottom:10px}
+.box{border:1px solid #00ff41;padding:12px;margin:12px 0;background:#001100}
+input{width:100%;padding:12px;background:#000;color:#0f0;border:1px solid #0f0;font-family:monospace;font-size:16px;box-sizing:border-box}
+button{padding:8px 14px;margin:4px;background:#001100;color:#0f0;border:1px solid #0f0;cursor:pointer;font-family:monospace}
+button.active{background:#00ff41;color:#000;font-weight:bold}
+#lista{max-height:400px;overflow-y:auto;background:#000;border:1px solid #0f0;padding:10px;font-size:13px;line-height:1.8}
+.tag{display:inline-block;border:1px solid #00ff41;padding:2px 8px;margin:2px;font-size:12px}
 a{color:#00ff41}
 </style>
 </head>
 <body>
-<h1>⚡ OPERACAO 4041 ⚡<br>FELIPE INACIO | OSINT ANALYST</h1>
+<h1>⚡ OPERACAO 4041 V2 ⚡<br>FELIPE INACIO | OSINT ANALYST</h1>
 
-<div class="box big">
-4,041 ALVOS MAPEADOS E VERIFICADOS
-</div>
-
-<div class="box">
-<b>DISTRIBUIÇÃO:</b><br>
+<div class="box" style="text-align:center">
+<div style="font-size:28px">4,041 ALVOS VERIFICADOS</div>
+<div style="margin-top:8px">
 <span class="tag">NASA: 2,589</span>
 <span class="tag">GLOBO: 661</span>
 <span class="tag">TESLA: 537</span>
-<span class="tag">SPACEX: 254</span><br><br>
-<b>STACK:</b> jarvis-tudo (Python) | Termux Android | DNSx | HTTPx | 100% Mobile
+<span class="tag">SPACEX: 254</span>
+</div>
 </div>
 
 <div class="box">
-<b>SOBRE O PROJETO:</b><br>
-Operação OSINT em larga escala executada 100% no Android via Termux.
-Coleta passiva, validação DNS, enriquecimento de dados e mapeamento de superfície de ataque.
-<br><br>
-<b>Contato:</b> felipeinaciooliveira5@gmail.com<br>
+<input type="text" id="busca" placeholder="🔍 PESQUISAR DOMÍNIO: ex: nasa.gov, tesla.com, globo.com...">
+<div style="margin-top:10px">
+<button class="active" onclick="filtrar('todos')">TODOS (4041)</button>
+<button onclick="filtrar('nasa')">NASA</button>
+<button onclick="filtrar('globo')">GLOBO</button>
+<button onclick="filtrar('tesla')">TESLA</button>
+<button onclick="filtrar('spacex')">SPACEX</button>
+</div>
+</div>
+
+<div class="box">
+<div><b>RESULTADOS: <span id="contador">4041</span></b> | <span id="status">Carregando base de exemplo...</span></div>
+<div id="lista">Carregando...</div>
+</div>
+
+<div class="box" style="font-size:12px;opacity:0.8">
+<b>STACK:</b> jarvis-tudo | Termux Android | DNSx + HTTPx<br>
+<b>Contato:</b> felipeinaciooliveira5@gmail.com | Praia Grande-SP<br>
 <b>GitHub:</b> felipeinaciooliveira5-rgb<br>
-<b>Local:</b> Praia Grande, SP - Brasil
+<b>Método:</b> Coleta passiva OSINT, validação DNS, enriquecimento. 100% Mobile.
 </div>
 
-<div class="box">
-<b>PROXIMOS PASSOS:</b><br>
-- Dashboard interativo com filtros<br>
-- Busca por domínio<br>
-- Export CSV/JSON<br>
-- API OSINT
-</div>
+<script>
+// BASE DE EXEMPLO - Substitua pelos seus 4041 reais depois
+const alvos_exemplo = [
+"nasa.gov","api.nasa.gov","images.nasa.gov","tesla.com","shop.tesla.com","model3.tesla.com",
+"globo.com","g1.globo.com","ge.globo.com","spacex.com","api.spacex.com","starlink.com",
+"nasa.gov - cassini","nasa.gov - jpl","tesla.com - energy","globo.com - gshow","spacex.com - falcon9"
+];
+// Gera lista grande simulando 4041
+let todos = [];
+for(let i=0;i<4041;i++){ todos.push(alvos_exemplo[i%alvos_exemplo.length]+"-"+i+"."+["nasa.gov","tesla.com","globo.com","spacex.com"][i%4]); }
 
-<div class="box" style="text-align:center;opacity:0.7">
-[ SYSTEM ONLINE - 2026 ]<br>
-Feito no celular, no Termux, na raça.
-</div>
+let filtroAtual = 'todos';
+const listaEl = document.getElementById('lista');
+const contadorEl = document.getElementById('contador');
+const buscaEl = document.getElementById('busca');
 
+function render(lista){
+  contadorEl.textContent = lista.length;
+  listaEl.innerHTML = lista.slice(0,300).map(d=>`• ${d}`).join('<br>') + (lista.length>300?`<br><br>... e mais ${lista.length-300} (filtrando mostra mais)`:'');
+}
+
+function filtrar(tipo){
+  filtroAtual = tipo;
+  document.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  aplicarFiltros();
+}
+
+function aplicarFiltros(){
+  const termo = buscaEl.value.toLowerCase();
+  let filtrados = todos.filter(d=>{
+    const matchTipo = filtroAtual==='todos' || d.includes(filtroAtual);
+    const matchBusca = d.toLowerCase().includes(termo);
+    return matchTipo && matchBusca;
+  });
+  render(filtrados);
+  document.getElementById('status').textContent = `Filtro: ${filtroAtual} | Busca: "${termo || 'nenhuma'}"`;
+}
+
+buscaEl.addEventListener('input', aplicarFiltros);
+render(todos);
+document.getElementById('status').textContent = 'Base de demonstração (4041). Envie sua base real para carregar.';
+</script>
 </body>
 </html>
